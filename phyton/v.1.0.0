@@ -1,0 +1,63 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Mar  4 19:16:09 2026
+
+@author: dell
+"""
+
+def biseccion(f, a, b, tol=1e-5, max_iter=100):
+    """
+    f: Función a la que buscamos la raíz
+    a: Límite inferior
+    b: Límite superior
+    tol: Tolerancia (error máximo permitido)
+    max_iter: Número máximo de iteraciones
+    """
+    
+    # Verificación inicial del Teorema de Bolzano
+    if f(a) * f(b) >= 0:
+        print("El método de bisección falló: f(a) y f(b) deben tener signos opuestos.")
+        return None
+
+    print(f"{'Iter':<5} | {'Punto Medio':<12} | {'f(Punto Medio)':<15}")
+    print("-" * 40)
+
+    for i in range(1, max_iter + 1):
+        # Calcular el punto medio
+        c = (a + b) / 2
+        f_c = f(c)
+
+        print(f"{i:<5} | {c:<12.6f} | {f_c:<15.6e}")
+
+        # Comprobar si encontramos la raíz o estamos dentro de la tolerancia
+        if abs(f_c) < tol or (b - a) / 2 < tol:
+            return c
+
+        # Decidir qué lado mantener
+        if f(a) * f_c < 0:
+            b = c
+        else:
+            a = c
+
+    print("Se alcanzó el máximo de iteraciones.")
+    return c
+
+
+# 1. Definir la función dinámicamente
+ecuacion = input("Introduce la función en términos de x (ej: x**2 - 4): ")
+f = lambda x: eval(ecuacion)
+
+# 2. Capturar los límites y parámetros
+try:
+    a = float(input("Introduce el límite inferior (a): "))
+    b = float(input("Introduce el límite superior (b): "))
+    tolerancia = float(input("Introduce la tolerancia (ej: 0.0001): "))
+    
+    # 3. Llamar a la función con tus valores
+    raiz_hallada = biseccion(f, a, b, tol=tolerancia)
+    
+    if raiz_hallada is not None:
+        print(f"\n✅ Proceso finalizado. La raíz es aproximadamente: {raiz_hallada:.6f}")
+        
+except ValueError:
+    print("Error: Por favor, introduce solo números para los límites y la tolerancia.")
