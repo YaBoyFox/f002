@@ -1,0 +1,96 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Mar 27 18:59:58 2026
+
+@author: lg
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def biseccion(f, a, b, tol=1e-5, max_iter=100):
+    """
+    Implementación del método de bisección con visualización opcional.
+    """
+    # Verificación del Teorema de Bolzano
+    try:
+        fa, fb = f(a), f(b)
+    except Exception as e:
+        print(f"Error al evaluar la función en los límites: {e}")
+        return None
+
+    if fa * fb >= 0:
+        print("❌ El método falló: f(a) y f(b) deben tener signos opuestos (Teorema de Bolzano).")
+        return None
+
+    print(f"\n{'Iter':<5} | {'Punto Medio':<12} | {'f(c)':<15} | {'Error (b-a)/2':<12}")
+    print("-" * 55)
+
+    c = a
+    for i in range(1, max_iter + 1):
+        c = (a + b) / 2
+        fc = f(c)
+        error = (b - a) / 2
+
+        print(f"{i:<5} | {c:<12.6f} | {fc:<15.6e} | {error:<12.6e}")
+
+        if abs(fc) < tol or error < tol:
+            return c
+
+        if f(a) * fc < 0:
+            b = c
+        else:
+            a = c
+
+    print("⚠️ Se alcanzó el máximo de iteraciones.")
+    return c
+
+def graficar_raiz(f, a, b, raiz, ecuacion_str):
+    # Crear un rango de puntos para la curva
+    margin = abs(b - a) * 0.5
+    x = np.linspace(a - margin, b + margin, 500)
+    
+    try:
+        y = f(x)
+        plt.figure(figsize=(10, 6))
+        plt.plot(x, y, label=f"f(x) = {ecuacion_str}", color='blue', linewidth=2)
+        plt.axhline(0, color='black', linestyle='--', linewidth=1) # Eje X
+        plt.axvline(0, color='black', linestyle='--', linewidth=1) # Eje Y
+        
+        # Resaltar la raíz encontrada
+        if raiz is not None:
+            plt.scatter([raiz], [f(raiz)], color='red', zorder=5, label=f'Raíz aprox: {raiz:.4f}')
+            plt.annotate(f'{raiz:.4f}', (raiz, f(raiz)), textcoords="offset points", xytext=(0,10), ha='center', color='red')
+
+        plt.title("Visualización del Método de Bisección")
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+        plt.grid(True, alpha=0.3)
+        plt.legend()
+        plt.show()
+    except Exception as e:
+        print(f"No se pudo graficar: {e}")
+
+# --- Bloque Principal ---
+print("--- Solucionador de Ecuaciones (Bisección) ---")
+print("Puedes usar funciones de numpy como: np.sin(x), np.exp(x), np.log(x), x**2, etc.\n")
+
+ecuacion = input("Introduce f(x): ")
+# El uso de np.__dict__ permite que eval reconozca comandos de numpy sin escribir np.
+f = lambda x: eval(ecuacion, {"x": x, "np": np, **np.__dict__})
+
+try:
+    a_in = float(input("Límite inferior (a): "))
+    b_in = float(input("Límite superior (b): "))
+    tol_in = float(input("Tolerancia (ej. 1e-5): "))
+    
+    raiz = biseccion(f, a_in, b_in, tol=tol_in)
+    
+    if raiz is not None:
+        print(f"\n✅ Raíz encontrada en x ≈ {raiz:.8f}")
+        graficar_raiz(f, a_in, b_in, raiz, ecuacion)
+
+except ValueError:
+    print("Error: Los límites y la tolerancia deben ser valores numéricos.")
+except Exception as e:
+    print(f"Ocurrió un error inesperado: {e}")
